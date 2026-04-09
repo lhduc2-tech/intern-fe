@@ -1,0 +1,40 @@
+# AGENTS.md
+
+## Project snapshot
+- Angular 21 app in `src/` with SSR enabled (`src/main.server.ts`, `src/server.ts`).
+- The root shell is minimal: `src/app/app.ts` only renders `<router-outlet />`.
+- Routes are lazy-loaded standalone components in `src/app/app.routes.ts` (`login`, `register`).
+
+## Architecture to follow
+- Use the feature-sliced layout already in place: `features/<domain>/{domain,data,application,presentation}`.
+- For auth, the flow is `presentation` component -> `application/AuthUseCase` -> `domain/AuthRepository` -> `data/AuthApiService`.
+- The API base URL comes from `src/app/environments/environment.ts` / `environment.prod.ts`.
+- If you add server routes or prerender behavior, update `src/app/app.routes.server.ts` and `src/server.ts` together.
+
+## Shared UI conventions
+- Reuse shared primitives from `src/app/shared/components/*` instead of ad hoc UI code.
+- Public imports come from the local `index.ts` files under `button/`, `card/`, `input/`, and `shared/core`.
+- Components/directives use `z-*` selectors: `z-button`, `z-card`, `z-input`, `zardId`, `zStringTemplateOutlet`.
+- Variants are defined with `class-variance-authority` and class concatenation goes through `mergeClasses()` in `src/app/shared/utils/merge-classes.ts`.
+
+## Styling and tokens
+- Global styling is Tailwind v4 in `src/styles.css`, not a separate Tailwind config file.
+- Theme colors are CSS variables exposed through `@theme inline`; dark mode is class-based (`.dark`).
+- Preserve the existing `@source "../app/**/*.ts"` and `@source "../app/**/*.html"` scanning paths when adding UI.
+
+## TypeScript / Angular patterns
+- Path alias `@/*` maps to `src/app/*`; `components.json` also expects `@/shared/components`, `@/shared/utils`, and `@/shared/core`.
+- Standalone components/directives are the norm; keep imports explicit in each component.
+- Forms are reactive and use Angular signals for local UI state (see `login.component.ts` and `register.component.ts`).
+
+## Developer workflows
+- `npm start` / `ng serve` for local dev.
+- `npm run build` for production bundles; `npm run watch` for incremental build output.
+- `npm test` runs the Vitest-based Angular unit test target.
+- `npm run serve:ssr:intern-fe` serves the built SSR app from `dist/intern-fe/server/server.mjs`.
+
+## Useful references
+- App bootstrap: `src/main.ts`, `src/app/app.config.ts`
+- SSR bootstrap: `src/main.server.ts`, `src/app/app.config.server.ts`
+- Shared exports: `src/app/shared/**/index.ts`
+- Example feature slice: `src/app/features/auth/**`
