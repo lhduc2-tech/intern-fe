@@ -2,19 +2,20 @@
 
 ## Project snapshot
 - Angular 21 app in `src/` with SSR enabled (`src/main.server.ts`, `src/server.ts`).
-- The root shell is minimal: `src/app/app.ts` only renders `<router-outlet />`.
+- The root shell in `src/app/app.ts` provides the root layout via `app.html`, rendering `<router-outlet />` alongside global shell components like `<z-toaster />`.
 - Routes are lazy-loaded standalone components in `src/app/app.routes.ts` (`login`, `register`).
 
 ## Architecture to follow
 - Use the feature-sliced layout already in place: `features/<domain>/{domain,data,application,presentation}`.
 - For auth, the flow is `presentation` component -> `application/AuthUseCase` -> `domain/AuthRepository` -> `data/AuthApiService`.
-- The API base URL comes from `src/app/environments/environment.ts` / `environment.prod.ts`.
+- The API base URL comes from `.env` (using `BASE_API_URL`). The node script `scripts/set-env.js` auto-generates `environment.ts` and `environment.prod.ts` via npm `prestart`/`prebuild`/`prewatch` hooks.
 - If you add server routes or prerender behavior, update `src/app/app.routes.server.ts` and `src/server.ts` together.
 
 ## Shared UI conventions
 - Reuse shared primitives from `src/app/shared/components/*` instead of ad hoc UI code.
-- Public imports come from the local `index.ts` files under `button/`, `card/`, `input/`, and `shared/core`.
-- Components/directives use `z-*` selectors: `z-button`, `z-card`, `z-input`, `zardId`, `zStringTemplateOutlet`.
+- Public imports come from the local `index.ts` files under `button/`, `card/`, `input/`, `select/`, `toast/`, and `shared/core`.
+- Components/directives use `z-*` selectors: `z-button`, `z-card`, `z-input`, `z-select`, `z-toaster`, `zardId`, `zStringTemplateOutlet`.
+- Icons are managed natively via `@ng-icons/core` and `@ng-icons/lucide`.
 - Variants are defined with `class-variance-authority` and class concatenation goes through `mergeClasses()` in `src/app/shared/utils/merge-classes.ts`.
 
 ## Styling and tokens
