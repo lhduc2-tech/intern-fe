@@ -24,6 +24,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { AuthUseCase } from '../../application/auth.usecase';
+import { ToastService } from '@/shared/components/toast';
 
 @Component({
   selector: 'app-login',
@@ -425,6 +426,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authUseCase = inject(AuthUseCase);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly showPassword = signal(false);
   readonly isLoading = signal(false);
@@ -462,14 +464,14 @@ export class LoginComponent {
     this.authUseCase.login({ usernameOrEmail, password }).subscribe({
       next: () => {
         this.isLoading.set(false);
+        this.toast.success('Thành công', 'Đăng nhập thành công. Đang chuyển hướng...');
         this.router.navigate(['/']);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          err?.error?.message ||
-          'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.',
-        );
+        const errMessage = err?.error?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+        this.toast.error('Lỗi', errMessage);
+        this.errorMessage.set(errMessage);
       },
     });
   }

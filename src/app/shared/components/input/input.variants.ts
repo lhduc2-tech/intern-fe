@@ -9,6 +9,8 @@ export const inputVariants = cva('w-full min-w-0', {
         'flex rounded-lg border border-input bg-transparent px-2.5 font-normal transition-colors file:inline-flex file:border-0 file:bg-transparent file:font-medium file:text-foreground placeholder:text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80',
       textarea:
         'flex pb-2 min-h-20 h-auto rounded-lg border border-input bg-transparent px-3 py-2 text-base transition-colors placeholder:text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80',
+      select:
+        'flex rounded-lg border border-input bg-transparent px-3 font-normal transition-colors appearance-none bg-[url("data:image/svg+xml,%3Csvg_xmlns=\'http://www.w3.org/2000/svg\'_width=\'16\'_height=\'16\'_viewBox=\'0_0_24_24\'_fill=\'none\'_stroke=\'%23999\'_stroke-width=\'2\'_stroke-linecap=\'round\'_stroke-linejoin=\'round\'%3E%3Cpath_d=\'m6_9_6_6_6-6\'/%3E%3C/svg%3E")] bg-no-repeat bg-[position:right_0.75rem_center] pr-10 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80 [&>option]:bg-background [&>option]:text-foreground [color-scheme:light] dark:[color-scheme:dark]',
     },
     zSize: {
       default: 'text-base md:text-sm',
@@ -30,17 +32,17 @@ export const inputVariants = cva('w-full min-w-0', {
   },
   compoundVariants: [
     {
-      zType: 'default',
+      zType: ['default', 'select'],
       zSize: 'default',
       class: 'h-9 py-1 file:h-7 file:text-sm file:max-md:py-0',
     },
     {
-      zType: 'default',
+      zType: ['default', 'select'],
       zSize: 'sm',
       class: 'h-8 py-1 file:h-6 file:text-sm file:max-md:py-1.5',
     },
     {
-      zType: 'default',
+      zType: ['default', 'select'],
       zSize: 'lg',
       class: 'h-10 py-1 file:h-7 file:text-sm file:max-md:py-2.5',
     },

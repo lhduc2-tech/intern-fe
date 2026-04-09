@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/set-env.js",
     "start": "ng serve",
+    "prebuild": "node scripts/set-env.js",
     "build": "ng build",
+    "prewatch": "node scripts/set-env.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:intern-fe": "node dist/intern-fe/server/server.mjs"
@@ -22,6 +25,7 @@
     "@angular/ssr": "^21.2.7",
     "@ng-icons/core": "^33.2.0",
     "@ng-icons/lucide": "^33.2.0",
+    "@ngx-env/builder": "^21.0.1",
     "@tailwindcss/postcss": "^4.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -39,6 +43,7 @@
     "@angular/compiler-cli": "^21.2.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
+    "dotenv": "^17.4.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",

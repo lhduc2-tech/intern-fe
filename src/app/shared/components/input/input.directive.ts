@@ -118,3 +118,30 @@ export class ZardInputDirective implements ControlValueAccessor {
     this.value.set(newValue);
   }
 }
+
+@Directive({
+  selector: 'select[z-input]',
+  host: {
+    '[class]': 'classes()',
+  },
+  exportAs: 'zSelect',
+})
+export class ZardSelectDirective {
+  readonly class = input<ClassValue>('');
+  readonly zBorderless = input(false, { transform: booleanAttribute });
+  readonly zSize = input<ZardInputSizeVariants>('default');
+  readonly zStatus = input<ZardInputStatusVariants>();
+  readonly size = linkedSignal<ZardInputSizeVariants>(() => this.zSize());
+
+  protected readonly classes = computed(() =>
+    mergeClasses(
+      inputVariants({
+        zType: 'select',
+        zSize: this.size(),
+        zStatus: this.zStatus(),
+        zBorderless: this.zBorderless(),
+      }),
+      this.class(),
+    ),
+  );
+}

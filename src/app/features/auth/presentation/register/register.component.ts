@@ -27,8 +27,10 @@ import {
 } from '@ng-icons/lucide';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardSelectComponent, ZardSelectOptionComponent } from '@/shared/components/select/select.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { AuthUseCase } from '../../application/auth.usecase';
+import { ToastService } from '@/shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -40,6 +42,8 @@ import { AuthUseCase } from '../../application/auth.usecase';
     NgIcon,
     ZardButtonComponent,
     ZardInputDirective,
+    ZardSelectComponent,
+    ZardSelectOptionComponent,
     ZardCardComponent,
   ],
   viewProviders: [
@@ -82,9 +86,12 @@ import { AuthUseCase } from '../../application/auth.usecase';
 
         <!-- Right side - Form -->
         <div class="auth-form-wrapper">
-          <z-card class="auth-card" zTitle="Đăng ký tài khoản" zDescription="Điền thông tin bên dưới để tạo tài khoản mới">
+          <z-card
+            class="auth-card"
+            zTitle="Đăng ký tài khoản"
+            zDescription="Điền thông tin bên dưới để tạo tài khoản mới"
+          >
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
-
               <!-- Full name -->
               <div class="form-group">
                 <label for="reg-fullname" class="form-label">
@@ -168,17 +175,17 @@ import { AuthUseCase } from '../../application/auth.usecase';
                   <ng-icon name="lucideBriefcase" class="label-icon" />
                   Vai trò
                 </label>
-                <select
+                <z-select
                   id="reg-role"
                   formControlName="role"
-                  class="form-select"
-                  [class.form-select--error]="isFieldInvalid('role')"
+                  placeholder="Chọn vai trò"
+                  [zStatus]="getFieldStatus('role')"
                 >
-                  <option value="" disabled>Chọn vai trò</option>
-                  <option value="INTERN">Thực tập sinh</option>
-                  <option value="MENTOR">Người hướng dẫn</option>
-                  <option value="MANAGER">Quản lý</option>
-                </select>
+                  <z-select-option value="" [disabled]="true">Chọn vai trò</z-select-option>
+                  <z-select-option value="MENTOR">Người hướng dẫn</z-select-option>
+                  <z-select-option value="MANAGER">Quản lý</z-select-option>
+                  <z-select-option value="ADMIN">Quản trị viên</z-select-option>
+                </z-select>
                 @if (isFieldInvalid('role')) {
                   <p class="form-error">Vui lòng chọn vai trò</p>
                 }
@@ -321,7 +328,8 @@ import { AuthUseCase } from '../../application/auth.usecase';
     .auth-branding {
       display: none;
       flex: 1;
-      background: linear-gradient(135deg,
+      background: linear-gradient(
+        135deg,
         oklch(0.35 0.15 155) 0%,
         oklch(0.28 0.12 175) 50%,
         oklch(0.22 0.1 195) 100%
@@ -457,9 +465,16 @@ import { AuthUseCase } from '../../application/auth.usecase';
     }
 
     @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(15px, -20px) scale(1.05); }
-      66% { transform: translate(-10px, 15px) scale(0.95); }
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(15px, -20px) scale(1.05);
+      }
+      66% {
+        transform: translate(-10px, 15px) scale(0.95);
+      }
     }
 
     /* ---- Form Side ---- */
@@ -514,38 +529,6 @@ import { AuthUseCase } from '../../application/auth.usecase';
     .label-icon {
       font-size: 0.875rem;
       color: var(--muted-foreground);
-    }
-
-    .form-select {
-      width: 100%;
-      height: 2.25rem;
-      padding: 0 0.625rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--input);
-      background: transparent;
-      color: var(--foreground);
-      font-size: 0.875rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.625rem center;
-      padding-right: 2.25rem;
-    }
-
-    .form-select:focus {
-      border-color: var(--ring);
-      box-shadow: 0 0 0 3px oklch(0.708 0 0 / 0.5);
-    }
-
-    .form-select--error {
-      border-color: var(--destructive);
-    }
-
-    .form-select--error:focus {
-      box-shadow: 0 0 0 3px oklch(0.577 0.245 27.325 / 0.2);
     }
 
     .password-wrapper {
@@ -636,6 +619,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authUseCase = inject(AuthUseCase);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
@@ -646,24 +630,10 @@ export class RegisterComponent {
   readonly registerForm = this.fb.nonNullable.group(
     {
       fullName: ['', [Validators.required, Validators.maxLength(255)]],
-      username: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(50),
-        ],
-      ],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
       role: ['', [Validators.required]],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(256),
-        ],
-      ],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(256)]],
       confirmPassword: ['', [Validators.required]],
     },
     {
@@ -688,17 +658,11 @@ export class RegisterComponent {
     return this.isFieldInvalid(field) ? 'error' : undefined;
   }
 
-  private passwordMatchValidator(
-    control: AbstractControl,
-  ): { [key: string]: boolean } | null {
+  private passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
 
-    if (
-      password &&
-      confirmPassword &&
-      password.value !== confirmPassword.value
-    ) {
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }
@@ -715,28 +679,25 @@ export class RegisterComponent {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    const { username, email, fullName, role, password } =
-      this.registerForm.getRawValue();
+    const { username, email, fullName, role, password } = this.registerForm.getRawValue();
 
-    this.authUseCase
-      .register({ username, email, fullName, role, password })
-      .subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.successMessage.set(
-            'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...',
-          );
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            err?.error?.message ||
-            'Đăng ký thất bại. Vui lòng thử lại.',
-          );
-        },
-      });
+    this.authUseCase.register({ username, email, fullName, role, password }).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.toast.success(
+          'Đăng ký thành công',
+          'Tài khoản của bạn đã được tạo. Đang chuyển hướng đến trang đăng nhập...'
+        );
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const errMessage = err?.error?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+        this.toast.error('Lỗi', errMessage);
+        this.errorMessage.set(errMessage);
+      },
+    });
   }
 }
