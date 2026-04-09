@@ -465,7 +465,7 @@ export class LoginComponent {
       next: () => {
         this.isLoading.set(false);
         this.toast.success('Thành công', 'Đăng nhập thành công. Đang chuyển hướng...');
-        this.router.navigate(['/']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.isLoading.set(false);

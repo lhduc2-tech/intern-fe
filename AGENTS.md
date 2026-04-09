@@ -3,12 +3,12 @@
 ## Project snapshot
 - Angular 21 app in `src/` with SSR enabled (`src/main.server.ts`, `src/server.ts`).
 - The root shell in `src/app/app.ts` provides the root layout via `app.html`, rendering `<router-outlet />` alongside global shell components like `<z-toaster />`.
-- Routes are lazy-loaded standalone components in `src/app/app.routes.ts` (`login`, `register`).
+- Routes are lazy-loaded standalone components in `src/app/app.routes.ts` (`login`, `register`, `dashboard`, `interns`). Dashboard and intern routes are wrapped by `src/app/layouts/main/main-layout.component.ts`.
 
 ## Architecture to follow
 - Use the feature-sliced layout already in place: `features/<domain>/{domain,data,application,presentation}`.
 - For auth, the flow is `presentation` component -> `application/AuthUseCase` -> `domain/AuthRepository` -> `data/AuthApiService`.
-- The API base URL comes from `.env` (using `BASE_API_URL`). The node script `scripts/set-env.js` auto-generates `environment.ts` and `environment.prod.ts` via npm `prestart`/`prebuild`/`prewatch` hooks.
+- The API base URL comes from `.env` (using `BASE_API_URL`). The node script `scripts/set-env.js` auto-generates `environment.ts` and `environment.prod.ts` providing `publicApi` and `privateApi` via npm `prestart`/`prebuild`/`prewatch` hooks.
 - If you add server routes or prerender behavior, update `src/app/app.routes.server.ts` and `src/server.ts` together.
 
 ## Shared UI conventions

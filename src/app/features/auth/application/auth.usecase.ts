@@ -40,4 +40,22 @@ export class AuthUseCase {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('access_token');
   }
+
+  getUserFullName(): string {
+    const token = this.getToken();
+    if (!token) return 'Admin User';
+    try {
+      const payloadBase64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const decodedData = atob(payloadBase64);
+      const uintArray = new Uint8Array(decodedData.length);
+      for (let i = 0; i < decodedData.length; i++) {
+        uintArray[i] = decodedData.charCodeAt(i);
+      }
+      const payloadJson = new TextDecoder('utf-8').decode(uintArray);
+      const payload = JSON.parse(payloadJson);
+      return payload.fullName || 'Admin User';
+    } catch (e) {
+      return 'Admin User';
+    }
+  }
 }

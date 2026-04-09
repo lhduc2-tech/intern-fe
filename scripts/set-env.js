@@ -10,19 +10,20 @@ const baseUrl = process.env.BASE_API_URL || 'http://localhost:8080/api';
 
 const devEnvConfigFile = `export const environment = {
   production: false,
-  apiUrl: '${baseUrl}/public/api/v1'
+  publicApi: '${baseUrl}/public/api/v1',
+  privateApi: '${baseUrl}/private/api/v1'
 };
 `;
 
 const prodEnvConfigFile = `export const environment = {
   production: true,
-  apiUrl: '${baseUrl}/public/api/v1'
+  publicApi: '${baseUrl}/public/api/v1',
+  privateApi: '${baseUrl}/private/api/v1'
 };
 `;
 
 fs.writeFileSync(targetPath, devEnvConfigFile);
-console.log(`Updated environment.ts with apiUrl: ${baseUrl}/public/api/v1`);
+console.log(`Updated environment.ts with publicApi: ${baseUrl}/public/api/v1`);
 
 fs.writeFileSync(prodTargetPath, prodEnvConfigFile);
-console.log(`Updated environment.prod.ts with apiUrl: ${baseUrl}/public/api/v1`);
-
+console.log(`Updated environment.prod.ts with publicApi: ${baseUrl}/public/api/v1`);
