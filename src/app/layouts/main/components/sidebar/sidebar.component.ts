@@ -3,12 +3,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLayoutDashboard, lucideUsers, lucideChevronLeft, lucideBriefcase } from '@ng-icons/lucide';
-import { ZardButtonComponent } from '@/shared/components/button';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, NgIcon, ZardButtonComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, NgIcon],
   viewProviders: [provideIcons({ lucideLayoutDashboard, lucideUsers, lucideChevronLeft, lucideBriefcase })],
   template: `
     <aside

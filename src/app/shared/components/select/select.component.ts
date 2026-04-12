@@ -10,6 +10,7 @@ import {
   inject,
   contentChildren,
   afterNextRender,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
@@ -19,14 +20,22 @@ import { cva } from 'class-variance-authority';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
 export const selectVariants = cva(
-  'flex h-10 w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-base md:text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+  'flex w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
   {
     variants: {
+      zSize: {
+        sm: 'h-8 text-xs px-2',
+        default: 'h-10 px-3 py-2',
+        lg: 'h-12 text-base px-4 py-3',
+      },
       zStatus: {
         error: 'border-destructive focus:ring-destructive',
         warning: 'border-yellow-500 focus:ring-yellow-500',
         success: 'border-green-500 focus:ring-green-500',
       },
+    },
+    defaultVariants: {
+      zSize: 'default',
     },
   },
 );
@@ -58,7 +67,7 @@ export class ZardSelectOptionComponent {
   readonly selected = signal(false);
 
   private readonly parent = inject(forwardRef(() => ZardSelectComponent));
-  private readonly el = inject(ElementRef);
+  readonly el = inject(ElementRef);
 
   getLabel(): string {
     return this.label() || this.el.nativeElement.textContent?.trim() || '';
@@ -84,7 +93,7 @@ export class ZardSelectOptionComponent {
     provideIcons({ lucideChevronDown, lucideCheck }),
   ],
   template: `
-    <div class="relative w-full" (click)="$event.stopPropagation()">
+    <div class="relative w-full">
       <button
         type="button"
         [class]="containerClass()"
@@ -108,9 +117,11 @@ export class ZardSelectOptionComponent {
   `,
 })
 export class ZardSelectComponent implements ControlValueAccessor {
+  readonly class = input<string>('');
   readonly placeholder = input('Select an option');
   readonly disabled = model(false);
   readonly zStatus = input<'error' | 'warning' | 'success' | undefined>();
+  readonly zSize = input<'sm' | 'default' | 'lg'>('default');
 
   readonly options = contentChildren(ZardSelectOptionComponent);
 
@@ -124,6 +135,13 @@ export class ZardSelectComponent implements ControlValueAccessor {
 
   private readonly el = inject(ElementRef);
 
+  constructor() {
+    effect(() => {
+      this.options();
+      setTimeout(() => this.updateSelectedOptions());
+    });
+  }
+
   @HostListener('document:click', ['$event'])
   clickOutside(event: Event) {
     if (this.isOpen() && !this.el.nativeElement.contains(event.target)) {
@@ -133,12 +151,23 @@ export class ZardSelectComponent implements ControlValueAccessor {
   }
 
   get containerClass() {
-    return () => mergeClasses(selectVariants({ zStatus: this.zStatus() }));
+    return () => mergeClasses(selectVariants({ zSize: this.zSize(), zStatus: this.zStatus() }), this.class());
   }
 
   toggleOverlay() {
     if (!this.disabled()) {
-      this.isOpen.update((v) => !v);
+      const willOpen = !this.isOpen();
+      this.isOpen.set(willOpen);
+      if (willOpen) {
+        setTimeout(() => this.scrollToSelected());
+      }
+    }
+  }
+
+  private scrollToSelected() {
+    const selected = this.options().find((o) => o.selected());
+    if (selected) {
+      selected.el.nativeElement.scrollIntoView({ block: 'center' });
     }
   }
 

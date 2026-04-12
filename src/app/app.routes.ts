@@ -37,6 +37,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'interns/new',
+        loadComponent: () =>
+          import('./features/intern/presentation/intern-form/intern-form.component').then(
+            (m) => m.InternFormComponent,
+          ),
+      },
+      {
+        path: 'interns/:id',
+        loadComponent: () =>
+          import('./features/intern/presentation/intern-form/intern-form.component').then(
+            (m) => m.InternFormComponent,
+          ),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',

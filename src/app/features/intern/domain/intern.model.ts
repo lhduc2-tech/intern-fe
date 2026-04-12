@@ -1,8 +1,9 @@
 export interface InternResponse {
   id: string;
   userId: string;
+  fullName: string;
   status: string;
-  projectId: string;
+  projectIds: string[];
   internshipSessionId: string;
   graduated: boolean;
   companyAccount: string;
@@ -26,6 +27,32 @@ export interface InternResponse {
   createdBy: string;
   updatedAt: string;
   updatedBy: string;
+}
+
+export interface InternRequest {
+  userId?: string;
+  fullName?: string;
+  status?: string;
+  projectId?: string;
+  internshipSessionId?: string;
+  graduated?: boolean;
+  companyAccount?: string;
+  technology?: string;
+  mentorId?: string;
+  organization?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  identityNumber?: string;
+  identityIssueDate?: string;
+  level?: string;
+  major?: string;
+  university?: string;
+  phone?: string;
+  permanentAddress?: string;
+  position?: string;
+  internshipStartDate?: string;
+  internshipEndDate?: string;
+  acceptanceDocument?: string;
 }
 
 export interface InternSearchRequest {

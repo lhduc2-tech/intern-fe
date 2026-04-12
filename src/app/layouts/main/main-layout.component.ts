@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HeadbarComponent } from './components/headbar/headbar.component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, HeadbarComponent],
+  imports: [RouterOutlet, SidebarComponent, HeadbarComponent, CdkScrollable],
   template: `
     <div class="flex h-screen w-full bg-gray-50/50 dark:bg-gray-900/50 overflow-hidden font-sans">
 
@@ -18,7 +19,7 @@ import { HeadbarComponent } from './components/headbar/headbar.component';
         <app-headbar class="shrink-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 z-30"></app-headbar>
 
         <!-- Main content với router-outlet -->
-        <main class="flex-1 overflow-y-auto w-full p-4 lg:p-6 custom-scrollbar">
+        <main cdkScrollable class="flex-1 overflow-y-auto w-full p-4 lg:p-6 custom-scrollbar">
           <div class="max-w-[1600px] mx-auto w-full">
             <router-outlet></router-outlet>
           </div>

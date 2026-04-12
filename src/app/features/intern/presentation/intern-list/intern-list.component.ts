@@ -5,14 +5,17 @@ import { InternResponse, InternSearchRequest, PageResponse } from '../../domain/
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardCardComponent } from '@/shared/components/card';
 import { ZardSelectComponent, ZardSelectOptionComponent } from '@/shared/components/select';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from '@ng-icons/lucide';
+import { ToastService } from '@/shared/components/toast';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 
 @Component({
   selector: 'app-intern-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ZardButtonComponent, ZardCardComponent, ZardSelectComponent, ZardSelectOptionComponent, NgIcon],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ZardButtonComponent, ZardCardComponent, ZardSelectComponent, ZardSelectOptionComponent, NgIcon],
   viewProviders: [provideIcons({ lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter })],
   template: `
     <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -37,7 +40,7 @@ import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 focus-within:text-primary transition-colors">Trạng thái</label>
               <div class="relative z-select-container">
                 <ng-icon name="lucideFilter" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></ng-icon>
-                <z-select formControlName="status" class="w-full text-sm block" placeholder="Tất cả trạng thái">
+                <z-select formControlName="status" class="w-full text-sm" placeholder="Tất cả trạng thái">
                   <z-select-option value="">Tất cả trạng thái</z-select-option>
                   <z-select-option value="ACTIVE">Đang thực tập</z-select-option>
                   <z-select-option value="INACTIVE">Đã nghỉ</z-select-option>
@@ -45,7 +48,7 @@ import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from
               </div>
             </div>
 
-            <button z-button variant="default" type="submit" class="h-9 gap-2 shadow-sm" [zLoading]="loading()">
+            <button z-button zType="default" type="submit" class="h-9 gap-2 shadow-sm" [zLoading]="loading()">
               @if(!loading()) {
                 <ng-icon name="lucideSearch" size="16"></ng-icon>
               }
@@ -54,10 +57,10 @@ import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from
 
             <div class="flex-1"></div>
 
-            <button type="button" z-button variant="default" class="h-9 gap-2 shadow-sm">
+            <a routerLink="/interns/new" z-button zType="default" class="h-9 gap-2 shadow-sm">
               <ng-icon name="lucidePlus" size="16"></ng-icon>
               Thêm TTS
-            </button>
+            </a>
           </form>
 
           <div class="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden text-sm">
@@ -66,24 +69,26 @@ import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from
                 <thead>
                   <tr class="border-b bg-gray-50/50 dark:bg-gray-800/50">
                     <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300">Account</th>
+                    <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300">Họ và tên</th>
                     <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300">Tổ chức</th>
                     <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300">Công nghệ</th>
                     <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300">Trạng thái</th>
-                    <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300 text-right">Thao tác</th>
+                    <th class="py-2.5 px-4 font-medium text-gray-600 dark:text-gray-300 text-center w-24">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of data()?.content" class="border-b hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                     <td class="py-2 px-4">
-                      <span class="font-medium text-primary hover:underline cursor-pointer">{{ item.companyAccount }}</span>
+                      <a [routerLink]="['/interns', item.id]" class="font-medium text-primary hover:underline cursor-pointer">{{ item.companyAccount }}</a>
                     </td>
+                    <td class="py-2 px-4 font-medium text-gray-900 dark:text-gray-100">{{ item.fullName }}</td>
                     <td class="py-2 px-4">{{ item.organization }}</td>
                     <td class="py-2 px-4">{{ item.technology }}</td>
                     <td class="py-2 px-4">
                       <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">{{ item.status }}</span>
                     </td>
-                    <td class="py-2 px-4 text-right">
-                      <button type="button" class="inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full w-8 h-8 transition-colors focus:outline-none">
+                    <td class="py-2 px-4 text-center">
+                      <button type="button" (click)="onDelete(item)" class="inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full w-8 h-8 transition-colors focus:outline-none">
                         <ng-icon name="lucideTrash2" size="16"></ng-icon>
                       </button>
                     </td>
@@ -112,6 +117,8 @@ import { lucidePlus, lucideSearch, lucideEdit, lucideTrash2, lucideFilter } from
 export class InternListComponent implements OnInit {
   private useCase = inject(InternUseCase);
   private fb = inject(FormBuilder);
+  private toast = inject(ToastService);
+  private dialog = inject(ZardDialogService);
 
   data = signal<PageResponse<InternResponse> | null>(null);
   loading = signal(false);
@@ -129,12 +136,36 @@ export class InternListComponent implements OnInit {
     this.loadData();
   }
 
+  onDelete(item: InternResponse) {
+    this.dialog.create({
+      zTitle: 'Xác nhận xóa',
+      zDescription: `Bạn có chắc chắn muốn xóa thực tập sinh ${item.fullName} không? Hành động này không thể hoàn tác.`,
+      zWidth: '400px',
+      zOkText: 'Xóa',
+      zCancelText: 'Hủy',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.useCase.deleteIntern(item.id).subscribe({
+          next: () => {
+            this.toast.success('Thành công', 'Đã xóa thực tập sinh thành công.');
+            this.loadData();
+          },
+          error: () => {
+            this.toast.error('Lỗi', 'Không thể xóa thực tập sinh lúc này, vui lòng thử lại sau.');
+          }
+        });
+      }
+    });
+  }
+
   private loadData() {
     this.loading.set(true);
     const request: InternSearchRequest = {
       ...this.searchForm.value,
       pageIndex: 0,
-      pageSize: 10
+      pageSize: 10,
+      sort: 'createdAt',
+      direction: 'DESC'
     };
 
     // Clean empty values
@@ -155,12 +186,13 @@ export class InternListComponent implements OnInit {
           content: [
             {
               id: '1',
+              fullName: 'Nguyễn Văn Nam',
               companyAccount: 'intern1.dev',
               organization: 'FPT Software',
               technology: 'Angular',
               status: 'ACTIVE',
               userId: 'u1',
-              projectId: 'p1',
+              projectIds: ['p1'],
               internshipSessionId: 's1',
               graduated: false,
               mentorId: 'm1',

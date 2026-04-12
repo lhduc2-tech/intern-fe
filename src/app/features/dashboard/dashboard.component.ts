@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { ZardCardComponent } from '@/shared/components/card';
-import { ZardButtonComponent } from '@/shared/components/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideUsers, lucideActivity, lucideCheckCircle, lucideArrowUpRight } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [ZardCardComponent, ZardButtonComponent, NgIcon],
+  imports: [ZardCardComponent, NgIcon],
   viewProviders: [provideIcons({ lucideUsers, lucideActivity, lucideCheckCircle, lucideArrowUpRight })],
   template: `
     <div class="flex items-center justify-center h-full min-h-[60vh] animate-in fade-in zoom-in duration-500">
